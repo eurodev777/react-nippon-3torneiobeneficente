@@ -180,11 +180,11 @@ type TitleLayout = {
 
 
 
-const API_IMAGENS = "https://sothink.com.br/apidivas/api/v2/nippon/list-images";
+const API_IMAGENS = "https://sothink.com.br/apibeneficiente3/api/v2/nippon/list-images";
 
-const BASE_IMAGENS = "https://sothink.com.br/apidivas/";
+const BASE_IMAGENS = "https://sothink.com.br/apibeneficiente3/";
 
-const API_CHAVES = "https://sothink.com.br/apidivas/apichaves/api/jogos";
+const API_CHAVES = "https://sothink.com.br/apibeneficiente3/apichaves/api/jogos";
 
 
 

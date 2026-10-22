@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const API_URL = "https://sothink.com.br/apidivas/api/v2/nipponimages";
-const BASE_URL = "https://sothink.com.br/apidivas/";
+const API_URL = "https://sothink.com.br/apibeneficiente3/api/v2/nipponimages";
+const BASE_URL = "https://sothink.com.br/apibeneficiente3/";
 
 interface ImagemGaleria {
   id: number;

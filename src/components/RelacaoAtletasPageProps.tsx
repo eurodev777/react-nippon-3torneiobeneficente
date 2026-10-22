@@ -50,7 +50,7 @@ type ResultadoBusca = {
   categoria: Categoria;
 };
 
-const API_URL = "https://sothink.com.br/apidivas/api/v2/nippon";
+const API_URL = "https://sothink.com.br/apibeneficiente3/api/v2/nippon";
 
 function normalizarBusca(valor: string): string {
   return valor

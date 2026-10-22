@@ -44,7 +44,7 @@ export default function App() {
 
   const buscarChaves = async () => {
     const res = await fetch(
-      "https://sothink.com.br/centenario26/api/v2/nippon/list-images",
+      "https://sothink.com.br/apibeneficiente3/api/v2/nippon/list-images",
     );
 
     const data = await res.json();
