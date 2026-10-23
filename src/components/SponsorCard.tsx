@@ -28,7 +28,7 @@ export default function SponsorCard({ sponsor, onClick }: SponsorCardProps) {
       <div className="absolute inset-0 bg-radial-gradient from-transparent to-stone-50/50 opacity-0 transition group-hover:opacity-100" />
 
       {/* Visual content representation */}
-      <div className="z-10 w-48 h-52">
+      <div className="z-10 w-100 h-52">
         <img
           src={sponsor.logoText}
           className="w-full h-full object-contain"

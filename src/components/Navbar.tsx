@@ -100,7 +100,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
               }`}
             >
               <Users className="h-3.5 w-3.5" />
-              <span>Duplas</span>
+              <span>Equipes</span>
             </button>
 
             {/* Botão TABELAS */}

@@ -101,18 +101,6 @@ export default function HeroSection(_props: HeroSectionProps) {
                 pessoas. Neste ano, graças a vocês, essa união apoiará a
                 Instituição Batuíra e a Vila dos Velhinhos.
               </p>
-              <p className="text-center text-white text-base font-bold block">
-                Juntas por essa causa
-              </p>
-              <p>
-                Nesta edição, o rosa ganha um significado ainda mais especial. O
-                5º Encontro das Divas abraça também a conscientização do Outubro
-                Rosa, unindo nossas atletas em torno de uma mensagem de cuidado,
-                prevenção e valorização da saúde da mulher. Porque quando
-                entramos em quadra juntas, podemos fazer muito mais do que
-                disputar pontos. Esporte. Amizade. Família. Juntas por essa
-                causa.
-              </p>
             </div>
           </div>
 
