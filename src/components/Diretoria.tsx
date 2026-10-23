@@ -75,7 +75,10 @@ export default function Diretoria() {
                   <div
                     className={`absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br ${avatarColor}`}
                   >
-                    <img src={director.initials} className="object-cover h-full w-full" />
+                    <img
+                      src={director.initials}
+                      className="object-cover h-full w-full"
+                    />
                     {/* Tiny subtle circular Japanese design element */}
                     <div className="absolute right-1 bottom-1 h-5 w-5 rounded-full border border-white/20 flex items-center justify-center">
                       <span className="text-[6px] font-bold opacity-60">
@@ -106,7 +109,7 @@ export default function Diretoria() {
           <div className="relative py-4">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gold/30" />
             <h3 className="text-lg md:text-2xl">
-              5º Encontro das Divas – Nippon Sorocaba Tênis
+              3º Torneio Beneficente de Tênis do Grupo Decisium
             </h3>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gold/30" />
           </div>
@@ -115,31 +118,21 @@ export default function Diretoria() {
           <div className="space-y-6 text-sm leading-relaxed font-medium text-justify md:text-center md:px-6">
             <p>
               <strong className="">
-                Mais que tênis. Grandes encontros.
+                Um dia para jogar, encontrar amigos e fazer o bem.
               </strong>
-              <br />O 5º Encontro das Divas chega para mais uma edição especial
-              no Nippon Sorocaba Tênis, reunindo mulheres que compartilham a
-              paixão pelo esporte, pela amizade e pelos bons momentos dentro e
-              fora das quadras. No dia 03 de outubro, a partir das 8h, teremos
-              uma programação preparada especialmente para receber nossas
-              atletas e suas famílias. O torneio feminino será disputado nas
-              categorias A, B e C, com as duplas formadas por sorteio,
-              proporcionando integração, novas parcerias e muita diversão
-              durante os jogos.
+              <br />O Torneio Beneficente de Tênis do Grupo Decisium chega à sua
+              terceira edição, com o apoio do Nippon Sorocaba, reunindo pessoas
+              que compartilham a paixão pelo esporte e a vontade de ajudar. É a
+              união de atletas, patrocinadores e apoiadores que dá sentido a
+              esse encontro.
             </p>
 
             <p>
-              As campeãs e vice-campeãs serão premiadas com troféus, e a
-              competição também contará com repescagem, garantindo ainda mais
-              tênis ao longo do evento. As participantes também receberão um
-              brinde especial preparado para marcar esta edição. Um dia para
-              toda a família O Encontro das Divas acontece junto a uma
-              programação especial de Dia das Crianças, reforçando uma das
-              características mais importantes do Nippon Sorocaba: ser um espaço
-              onde esporte, amizade e família se encontram. As crianças terão
-              recreação especial, enquanto atletas, familiares, amigos e
-              convidados poderão aproveitar o dia e participar também do almoço
-              do evento.
+              Mais do que jogar tênis, queremos fortalecer uma corrente de
+              solidariedade. Um evento feito por pessoas, para pessoas, em que a
+              convivência e a contribuição de cada um ajudam centenas de
+              pessoas. Neste ano, graças a vocês, essa união apoiará a
+              Instituição Batuíra e a Vila dos Velhinhos.
             </p>
             <p className="text-center text-white text-base font-bold block">
               Juntas por essa causa

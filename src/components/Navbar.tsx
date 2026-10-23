@@ -88,7 +88,7 @@ export default function Navbar({ currentPage, setCurrentPage }: NavbarProps) {
               }`}
             >
               <Users className="h-3.5 w-3.5" />
-              <span>3º Torneio Beneficiente</span>
+              <span>3º Torneio Beneficente</span>
             </button>
             {/* Botão EQUIPES */}
             <button

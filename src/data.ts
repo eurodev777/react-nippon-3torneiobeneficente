@@ -4,285 +4,190 @@
  */
 
 import { Sponsor, Supporter, Director } from "./types";
-import mcamicado from "./assets/patrocinadores/1.webp";
-import hala from "./assets/patrocinadores/hala.jpg";
-import unica from "./assets/patrocinadores/4.jpeg";
-import braga from "./assets/patrocinadores/3.png";
-import ito from "./assets/patrocinadores/ito.jpg";
-import sicredi from "./assets/apoio/sicredi.jpg";
-import bwm from "./assets/apoio/bwm.jpg";
-import dai from "./assets/apoio/dai.jpg";
-import maxxi from "./assets/apoio/maxxi.jpg";
-import jadlog from "./assets/apoio/jadlog.jpg";
-import mr from "./assets/apoio/mr.jpg";
-import ideal from "./assets/apoio/ideal.jpg";
-import h20 from "./assets/apoio/h20.jpg";
-import simus from "./assets/apoio/simus.jpg";
-import shibata from "./assets/apoio/shibata.jpg";
-import katia from "./assets/apoio/katia.jpg";
-import prosteel from "./assets/apoio/prosteel.jpg";
-import tammy from "./assets/apoio/tammy.jpg";
-import outlabel from "./assets/apoio/outlabel.jpg";
-import classicpan from "./assets/apoio/classicpan.jpg";
-import dr from "./assets/apoio/dr.jpg";
-import mira from "./assets/apoio/mira.jpg";
-import tadao from "./assets/apoio/tadao.jpg";
+import gwm from "./assets/patrocinadores/btg.png";
+import mag from "./assets/patrocinadores/mag.png";
+import tecnofix from "./assets/patrocinadores/tecnofix.jpeg";
+import dai from "./assets/patrocinadores/dai.png";
+import tammy from "./assets/patrocinadores/tammy.jpeg";
+import mira from "./assets/patrocinadores/mira.jpeg";
+import saude from "./assets/patrocinadores/saude.jpeg";
+import farma from "./assets/patrocinadores/farma.jpeg";
+import geovane from "./assets/patrocinadores/geovane.jpeg";
+import hecaplast from "./assets/patrocinadores/hecaplast.jpeg";
+import indusplastic from "./assets/patrocinadores/indusplastic.png";
+import interpisos from "./assets/patrocinadores/interpisos.png";
+import llegat from "./assets/patrocinadores/llegat.jpeg";
+import hks from "./assets/patrocinadores/hks.png";
+import giba from "./assets/patrocinadores/giba.png";
+import friends from "./assets/patrocinadores/friends.png";
+import metaltec from "./assets/patrocinadores/metaltec.jpeg";
 import sothink from "./assets/apoio/sothink.png";
 import mt from "./assets/diretoria/1.jpg";
 import ic from "./assets/diretoria/2.jpg";
 import st from "./assets/diretoria/3.jpg";
 import tk from "./assets/diretoria/4.jpg";
 import rt from "./assets/diretoria/5.jpg";
-import acai from "./assets/expositores/acai-everest.png";
-import bea from "./assets/expositores/bea.png";
-import shimi from "./assets/expositores/shimi.png";
-import atomy from "./assets/expositores/atomy.png";
-import violet from "./assets/expositores/violet.png";
-import comfort from "./assets/expositores/comfort.png";
-import alice from "./assets/expositores/alice.png";
-import brilho from "./assets/expositores/brilho.jpg";
-import longway from "./assets/expositores/longway.png";
-import ishao from "./assets/expositores/ishao.jpeg";
-import brahma from "./assets/expositores/brahma.png";
-import picole from "./assets/expositores/picole-joao.jpeg";
-import shiki from "./assets/expositores/shiki.png";
-import italiana from "./assets/expositores/italiana.jpeg";
-import manaki from "./assets/expositores/manaki.jpeg";
-
-import { describe } from "node:test";
 
 // Adicione isso ao seu arquivo data.ts (ou onde você guarda SPONSORS e SUPPORTERS)
 
-// 1. Array para a grade principal de Expositores (parte de cima)
-export const EXHIBITORS = [
-  {
-    id: "exp-acai",
-    name: "Açaí Everest",
-    logoText: acai,
-    instagram: "acaieverest",
-    instagramUrl: "acaieverest",
-  },
-
-  {
-    id: "exp-bea",
-    name: "Bea Active Wear",
-    logoText: bea,
-    whatsapp: "(11) 99404-0139",
-    whatsappUrl: "https://wa.me/5511994040139",
-  },
-
-  {
-    id: "exp-katia",
-    name: "Kátia Mayumi",
-    logoText: katia,
-    instagram: "katia_yamamotokmy",
-    instagramUrl: "katia_yamamotokmy",
-  },
-
-  {
-    id: "exp-violet",
-    name: "Violet Doces",
-    logoText: violet,
-    whatsapp: "(15) 99836-0253",
-    whatsappUrl: "https://wa.me/5515998360253",
-  },
-
-  {
-    id: "exp-comfort",
-    name: "TG Comfort",
-    logoText: comfort,
-    instagram: "tgcomfort",
-    instagramUrl: "tgcomfort",
-  },
-
-  {
-    id: "exp-alice",
-    name: "Alice",
-    logoText: alice,
-    whatsapp: "(11) 99882-9990",
-    whatsappUrl: "https://wa.me/5511998829990",
-  },
-
-  {
-    id: "exp-brilho",
-    name: "Brilho Raro",
-    logoText: brilho,
-    instagram: "brilhoraro.semijoiasacessorios",
-    instagramUrl: "brilhoraro.semijoiasacessorios",
-  },
-
-  {
-    id: "exp-picole-joao",
-    name: "Picolé João",
-    logoText: picole,
-  },
-
-  {
-    id: "exp-cozinha-italiana",
-    name: "Cozinha Italiana",
-    logoText: italiana,
-  },
-
-  {
-    id: "exp-manaki",
-    name: "Manakai Japanese Food",
-    logoText: manaki,
-    whatsapp: "(15) 99604-4034",
-    whatsappUrl: "5515996044034",
-  },
-];
-
-// 2. Array para os 3 patrocinadores ao lado do logo do Birugumi (parte de baixo)
-export const BIRUGUMI_SPONSORS = [
-  {
-    id: "biru-longway",
-    name: "Longway",
-    logoText: longway,
-    instagram: "longwayalimentos",
-    instagramUrl: "longwayalimentos",
-  },
-
-  {
-    id: "biru-brahma",
-    name: "Mr. Jeff - Chopp Brahma Express",
-    logoText: brahma,
-    instagram: "mrjeffeventos",
-    instagramUrl: "mrjeffeventos",
-  },
-
-  {
-    id: "biru-dai",
-    name: "Dai Alimentos",
-    logoText: dai,
-    instagram: "daialimentos",
-    instagramUrl: "daialimentos",
-  },
-
-  {
-    id: "biru-shiki",
-    name: "Shiki",
-    logoText: shiki,
-    instagram: "shikifoodservice",
-    instagramUrl: "shikifoodservice",
-  },
-  {
-    id: "biru-ishao",
-    name: "Ishao Hortaliças",
-    logoText: ishao,
-    instagram: "",
-    instagramUrl: "",
-  },
-];
-
 export const SPONSORS = [
   {
-    id: "m-camicado",
-    name: "GSH Horses",
+    id: "mag",
+    name: "MAG",
     logoType: "text",
-    logoText: mcamicado,
-    tagline: "CAVALOS IMPORTADOS",
-    siteUrl: "https://www.ganeshahorses.com.br/",
-    instagram: "ganesha_sport_horses",
+    logoText: mag,
+    tagline: "",
+    siteUrl: "",
+    instagram: "",
+    whatsapp: "",
+    phone: "",
+    description: "",
+    bgColor: "bg-blue-500",
+    textColor: "text-white",
+  },
+  {
+    id: "gwm",
+    name: "GWM Investments | BTG Pactual",
+    logoType: "text",
+    logoText: gwm,
+    tagline: "",
+    siteUrl: "https://gwminvestments.com.br/",
+    instagram: "gwm.investments",
     whatsapp: "",
     phone: "",
     description:
-      "A Ganesha Sport Horses (GSH é uma importadora brasileira especializada em cavalos de alta performance e genética diferenciada para competições nacionais e internacionais de hipismo.",
-    bgColor: "bg-[#D2143A]",
+      "Do planejamento à realização, somos a ponte entre você e o seu futuro.",
+    bgColor: "bg-blue-500",
+    textColor: "text-white",
+  },
+  {
+    id: "tecnofix",
+    name: "Tecnofix",
+    logoType: "text",
+    logoText: tecnofix,
+    tagline: "",
+    siteUrl: "",
+    instagram: "",
+    whatsapp: "",
+    phone: "",
+    description: "",
+    bgColor: "bg-blue-500",
     textColor: "text-white",
   },
 ];
 
 export const SUPPORTERS = [
   {
-    id: "super-pneus",
-    name: "Super Pneus",
-    logoText: unica,
-    instagram: "superpneus",
-    instagramUrl: "superpneus",
-  },
-  {
-    id: "braga",
-    name: "Instituto Braga",
+    id: "hospital-saude-animal",
+    name: "Hospital Saúde Animal",
     logoType: "text",
-    logoText: braga,
+    logoText: saude,
     siteUrl: "",
-    instagram: "braga",
+    instagram: "",
   },
   {
-    id: "prosteel",
-    name: "Prosteel",
+    id: "farma-ponte",
+    name: "Farma Ponte",
     logoType: "text",
-    logoText: prosteel,
-    tagline: "Estruturas Metálicas e Calderaria",
-    instagram: "prosteelsorocaba",
-    description: "prosteelsorocaba@bol.com.br",
+    logoText: farma,
+    siteUrl: "",
+    instagram: "",
   },
   {
-    id: "jadlog",
-    name: "Jadlog",
+    id: "geovane-antunes",
+    name: "Geovane Antunes - Consultoria Imobiliária",
     logoType: "text",
-    logoText: jadlog,
-    instagram: "jadlogsorocaba",
-    whatsapp: "+551532333280",
-    phone: "(15) 3233-3280",
-    description: "tat.sor@jadlog.com.br",
+    logoText: geovane,
+    siteUrl: "",
+    instagram: "",
   },
   {
-    id: "ito",
-    name: "ITO",
+    id: "hecaplast",
+    name: "Hecaplast",
     logoType: "text",
-    logoText: ito,
-    tagline: "MATERIAIS PARA CONSTRUÇÃO",
-    instagram: "ito.materiaisconstrucao",
-    whatsapp: "+5511996192659",
-    description:
-      "Sua melhor opção em loja de materiais para construção em Sorocaba. Com mais de 10.000 produtos divididos em diversos departamentos, aqui você encontra tudo para sua obra, podendo contar com as melhores e mais variadas marcas e modelos de materiais para construção disponíveis no mercado.",
+    logoText: hecaplast,
+    siteUrl: "",
+    instagram: "",
   },
   {
-    id: "hala",
-    name: "HALA SOLUÇÕES",
+    id: "indusplastic",
+    name: "Indusplastic",
     logoType: "text",
-    logoText: hala,
-    siteUrl: "https://www.halasolucoes.com.br",
-    instagram: "halasolucoes",
+    logoText: indusplastic,
+    siteUrl: "",
+    instagram: "",
   },
-
   {
-    id: "hala",
-    name: "Mira",
+    id: "mira",
+    name: "Mira - Manutenção e Vistorias Imobiliárias",
     logoType: "text",
     logoText: mira,
     siteUrl: "",
     instagram: "",
   },
   {
-    id: "m0-ambiental",
-    name: "Grupo M0 Ambiental",
+    id: "interpisos",
+    name: "Interpisos",
     logoType: "text",
-    logoText: h20,
-    instagram: "grupoh2oambiental2",
-    whatsapp: "+5515998609777",
-    description: "a solução completa para o seu projeto!",
-  },
-  {
-    id: "tadao",
-    name: "Tadao Takeda",
-    logoType: "text",
-    logoText: tadao,
+    logoText: interpisos,
     siteUrl: "",
     instagram: "",
   },
   {
-    id: "sothink",
-    name: "Sothink Marketing",
+    id: "llegat",
+    name: "L.LEGAT",
     logoType: "text",
-    logoText: sothink,
-    siteUrl: "https://sothink.com.br",
-    instagram: "stk.marketing",
-    facebook: "profile.php?id=61562262162613",
-    whatsapp: "+5515997442108",
-    description:
-      "Na Sothink, cada projeto começa com uma análise estratégica das áreas da empresa. A partir desse diagnóstico, oferecemos soluções personalizadas, alinhadas às necessidades específicas de cada cliente — afinal, cada negócio é único e vive realidades diferentes.",
+    logoText: llegat,
+    siteUrl: "",
+    instagram: "",
+  },
+  {
+    id: "hks",
+    name: "HKS Advogados",
+    logoType: "text",
+    logoText: hks,
+    siteUrl: "",
+    instagram: "",
+  },
+  {
+    id: "bar-do-giba",
+    name: "Bar do Giba",
+    logoType: "text",
+    logoText: giba,
+    siteUrl: "",
+    instagram: "",
+  },
+  {
+    id: "friends-family",
+    name: "Friends & Family",
+    logoType: "text",
+    logoText: friends,
+    siteUrl: "",
+    instagram: "",
+  },
+  {
+    id: "tammy",
+    name: "Tammy - O Verdadeiro Pastel",
+    logoType: "text",
+    logoText: tammy,
+    siteUrl: "",
+    instagram: "",
+  },
+  {
+    id: "metaltec",
+    name: "Metaltec",
+    logoType: "text",
+    logoText: metaltec,
+    siteUrl: "",
+    instagram: "",
+  },
+  {
+    id: "dai",
+    name: "Dai Alimentos",
+    logoType: "text",
+    logoText: dai,
+    siteUrl: "",
+    instagram: "daialimentos",
   },
 ];
 

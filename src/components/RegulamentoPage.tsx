@@ -1,29 +1,299 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-  Search,
   ArrowLeft,
   BookOpen,
+  CalendarDays,
   ChevronRight,
-  Clock,
-  Landmark,
-  Trophy,
-  DollarSign,
   ClipboardList,
+  Clock3,
+  Coffee,
+  Gavel,
+  Landmark,
+  MapPin,
+  Search,
   ShieldCheck,
+  Swords,
+  Trophy,
   Users,
+  X,
+  type LucideIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
+import mapa from "../assets/mapa-nippon.jpg"
+type Category = "todos" | "geral" | "jogos" | "regulamento";
+type SectionCategory = Exclude<Category, "todos">;
+
+type Rule = {
+  title: string;
+  text?: string;
+  points?: string[];
+  note?: string;
+};
+
+type RuleSection = {
+  id: string;
+  title: string;
+  category: SectionCategory;
+  icon: LucideIcon;
+  rules?: Rule[];
+  special?: "bracket" | "schedule" | "map";
+  searchText?: string;
+};
 
 interface RegulamentoPageProps {
   onBack: () => void;
 }
 
-function normalizeSearch(value: string) {
+
+const sections: RuleSection[] = [
+  {
+    id: "geral",
+    title: "Informações Gerais",
+    category: "geral",
+    icon: Landmark,
+    rules: [
+      {
+        title: "Evento",
+        text: "3º Torneio Beneficente de Tênis — Grupo Decisium & Nippon Sorocaba.",
+      },
+      {
+        title: "Local",
+        text: "Nippon Sorocaba (União Cultural Esportiva Nipo Brasileira de Sorocaba), antiga Estrada de Araçoiaba da Serra, 211 — Araçoiaba da Serra.",
+      },
+      { title: "Data e início", text: "Sábado, 07 de novembro de 2026, a partir das 8h." },
+      { title: "Formato do torneio", text: "Competição por equipes, com jogos em duplas." },
+    ],
+  },
+  {
+    id: "equipes",
+    title: "Composição das Equipes",
+    category: "geral",
+    icon: Users,
+    rules: [
+      {
+        title: "12 equipes / 72 jogadores",
+        text: "O torneio terá 12 equipes, cada uma formada por 3 duplas (6 jogadores).",
+      },
+      {
+        title: "Distribuição por sorteio",
+        text: "A distribuição dos jogadores será realizada por sorteio, sob responsabilidade da Comissão Organizadora.",
+      },
+      {
+        title: "Duplas fixas",
+        text: "A Comissão Organizadora definirá previamente as 3 duplas de cada equipe. As formações permanecerão fixas durante todo o torneio, exceto na final.",
+        note: "Somente na final os capitães das equipes finalistas poderão definir a formação das 3 duplas.",
+      },
+    ],
+  },
+  {
+    id: "classificacao",
+    title: "Fase de Grupos e Classificação",
+    category: "regulamento",
+    icon: Trophy,
+    rules: [
+      {
+        title: "Divisão dos grupos",
+        text: "As 12 equipes serão sorteadas em uma chave única, dividida em 4 grupos com 3 equipes em cada.",
+        points: [
+          "Grupo 1: Equipes 1, 2 e 3",
+          "Grupo 2: Equipes 4, 5 e 6",
+          "Grupo 3: Equipes 7, 8 e 9",
+          "Grupo 4: Equipes 10, 11 e 12",
+        ],
+      },
+      {
+        title: "Round-robin",
+        text: "Dentro de cada grupo, todas as equipes se enfrentam. A equipe em 1º lugar avança para a semifinal da Chave Principal; a equipe em 2º lugar avança para a semifinal da Repescagem.",
+      },
+      {
+        title: "Desempate na fase de grupos",
+        text: "Critérios aplicados na seguinte ordem:",
+        points: [
+          "1. Confronto direto",
+          "2. Saldo de vitórias da equipe",
+          "3. Saldo de games",
+          "4. Sorteio",
+        ],
+      },
+    ],
+  },
+  {
+    id: "confrontos",
+    title: "Formato dos Confrontos",
+    category: "jogos",
+    icon: Swords,
+    rules: [
+      {
+        title: "Três jogos por confronto",
+        text: "Cada confronto entre duas equipes será disputado por suas três duplas:",
+        points: [
+          "Dupla 1 da Equipe A × Dupla 1 da Equipe B",
+          "Dupla 2 da Equipe A × Dupla 2 da Equipe B",
+          "Dupla 3 da Equipe A × Dupla 3 da Equipe B",
+        ],
+      },
+      {
+        title: "Jogos simultâneos",
+        text: "As três duplas jogarão simultaneamente, em quadras distintas.",
+      },
+      {
+        title: "Terceiro jogo obrigatório",
+        text: "Mesmo que o confronto esteja definido por 2 × 0, o terceiro jogo deverá ser concluído obrigatoriamente.",
+      },
+      {
+        title: "Exceção na final",
+        text: "Na disputa da final, os capitães das equipes finalistas poderão redefinir a formação das 3 duplas.",
+      },
+    ],
+  },
+  {
+    id: "partidas",
+    title: "Regras das Partidas",
+    category: "jogos",
+    icon: Clock3,
+    rules: [
+      {
+        title: "Set único — PRO SET",
+        text: "Todos os jogos serão disputados em um único set até 8 games (PRO SET).",
+      },
+      {
+        title: "Tie-break em 7 × 7",
+        text: "Em caso de empate em 7 × 7 games, será disputado um tie-break. Vence a dupla que alcançar pelo menos 7 pontos, com diferença mínima de 2 pontos.",
+      },
+      {
+        title: "Sistema No-Ad (sem vantagem)",
+        text: "Em 40–40, o game será definido no ponto seguinte. A dupla recebedora escolherá quem receberá o saque.",
+      },
+      {
+        title: "No-Ad em confrontos entre duplas mistas",
+        text: "Quando ambas as duplas forem mistas, se o sacador for homem deverá sacar para o homem adversário; se a sacadora for mulher deverá sacar para a mulher adversária.",
+      },
+      {
+        title: "Aquecimento",
+        text: "As duplas terão 5 minutos de aquecimento, contados a partir do anúncio da chamada do jogo.",
+      },
+      {
+        title: "Chegada antecipada",
+        text: "Solicita-se que os participantes cheguem pelo menos 30 minutos antes dos jogos programados.",
+      },
+    ],
+  },
+  {
+    id: "chaveamento",
+    title: "Chave Principal e Repescagem",
+    category: "jogos",
+    icon: Trophy,
+    special: "bracket",
+    searchText:
+      "Semifinal principal repescagem primeiro colocado segundo colocado grupo 1 grupo 2 grupo 3 grupo 4 jogos 13 14 15 16 17 18 campeao vice campeao final 14 15 16 horas",
+  },
+  {
+    id: "horarios",
+    title: "Horários dos Jogos e Quadras",
+    category: "jogos",
+    icon: CalendarDays,
+    special: "schedule",
+    searchText: "Tabela de jogos quadras Q1 Q2 Q3 Q4 Q5 Q6 manhã tarde",
+  },
+  {
+    id: "premiacao",
+    title: "Premiação e Alimentação",
+    category: "geral",
+    icon: Coffee,
+    rules: [
+      {
+        title: "Premiação",
+        points: [
+          "Troféus para a Equipe Campeã",
+          "Troféus para a Equipe Vice-Campeã",
+          "Medalhas para a Equipe Campeã da Repescagem",
+        ],
+      },
+      {
+        title: "Café da manhã",
+        text: "Será servido café da manhã aos tenistas participantes e convidados.",
+      },
+      { title: "Almoço", text: "Haverá venda de almoço no local." },
+    ],
+  },
+  {
+    id: "arbitragem",
+    title: "Arbitragem",
+    category: "regulamento",
+    icon: Gavel,
+    rules: [
+      { title: "Árbitros", text: "Julio Alves / Sergio Takeda." },
+    ],
+  },
+  {
+    id: "comissao",
+    title: "Comissão Organizadora",
+    category: "regulamento",
+    icon: ShieldCheck,
+    rules: [
+      {
+        title: "Alterações na competição",
+        text: "A Comissão Organizadora poderá alterar o chaveamento, o sistema de jogos e os horários em caso de mudanças no número de equipes participantes ou atrasos por qualquer motivo.",
+      },
+      {
+        title: "Contusão e substituição",
+        text: "Em caso de contusão durante o torneio, o capitão poderá consultar a Comissão Organizadora, que analisará e definirá um possível substituto ou substituta.",
+      },
+      {
+        title: "Dúvidas e penalidades",
+        text: "Dúvidas sobre aplicação e interpretação do regulamento, inclusive penalidades, serão resolvidas pela Comissão Técnica e Disciplinar. Sua decisão será soberana e definitiva.",
+      },
+      {
+        title: "Casos omissos",
+        text: "Os casos não previstos neste regulamento serão resolvidos pela Comissão Organizadora.",
+      },
+      {
+        title: "Comprovação de identidade",
+        text: "A qualquer momento, a Comissão poderá solicitar RG ou outro documento que comprove a identidade conforme a inscrição prévia.",
+      },
+    ],
+  },
+  {
+    id: "mapa",
+    title: "Mapa do Local",
+    category: "geral",
+    icon: MapPin,
+    special: "map",
+    searchText:
+      "Nippon Sorocaba UCENS Sede Campestre II antiga Estrada de Araçoiaba da Serra 211 bairro Ipanema do meio Araçoiaba da Serra mapa localização",
+  },
+];
+
+type ScheduleRow = {
+  time: string;
+  left: string;
+  right: string;
+  leftGame: string;
+  rightGame: string;
+};
+
+// Q1, Q2, Q3 recebem as duplas 1, 2 e 3 do confronto à esquerda.
+// Q4, Q5, Q6 recebem as duplas 1, 2 e 3 do confronto à direita.
+const scheduleRows: ScheduleRow[] = [
+  { time: "08:00", left: "Equipe 1 × Equipe 2", right: "Equipe 4 × Equipe 5", leftGame: "JG. 1", rightGame: "JG. 2" },
+  { time: "09:00", left: "Equipe 7 × Equipe 8", right: "Equipe 10 × Equipe 11", leftGame: "JG. 3", rightGame: "JG. 4" },
+  { time: "10:00", left: "Equipe 2 × Equipe 3", right: "Equipe 5 × Equipe 6", leftGame: "JG. 5", rightGame: "JG. 6" },
+  { time: "11:00", left: "Equipe 8 × Equipe 9", right: "Equipe 11 × Equipe 12", leftGame: "JG. 7", rightGame: "JG. 8" },
+  { time: "12:00", left: "Equipe 1 × Equipe 3", right: "Equipe 4 × Equipe 6", leftGame: "JG. 9", rightGame: "JG. 10" },
+  { time: "13:00", left: "Equipe 7 × Equipe 9", right: "Equipe 10 × Equipe 12", leftGame: "JG. 11", rightGame: "JG. 12" },
+  { time: "14:00", left: "2º Grupo 1 × 2º Grupo 2", right: "2º Grupo 3 × 2º Grupo 4", leftGame: "JG. 13 · Repescagem", rightGame: "JG. 14 · Repescagem" },
+  { time: "15:00", left: "1º Grupo 1 × 1º Grupo 2", right: "1º Grupo 3 × 1º Grupo 4", leftGame: "JG. 15 · Principal", rightGame: "JG. 16 · Principal" },
+  { time: "16:00", left: "Final Principal", right: "Final da Repescagem", leftGame: "JG. 18", rightGame: "JG. 17" },
+];
+
+const filters: { label: string; value: Category }[] = [
+  { label: "Todos", value: "todos" },
+  { label: "Geral", value: "geral" },
+  { label: "Jogos", value: "jogos" },
+  { label: "Regulamento", value: "regulamento" },
+];
+
+function normalizeSearch(value: string): string {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -31,850 +301,408 @@ function normalizeSearch(value: string) {
     .trim();
 }
 
+function ruleSearchText(rule: Rule): string {
+  return [rule.title, rule.text, ...(rule.points ?? []), rule.note]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function Schedule({ rows }: { rows: ScheduleRow[] }) {
+  return (
+    <div className="p-4 sm:p-6">
+      <p className="mb-4 text-sm leading-relaxed text-stone-600">
+        Cada confronto ocupa três quadras simultaneamente. As duplas 1, 2 e 3
+        jogam, respectivamente, nas quadras indicadas abaixo.
+      </p>
+      <div className="space-y-3 md:hidden">
+        {rows.map((row) => (
+          <div key={row.time} className="overflow-hidden rounded-xl border border-stone-200 bg-white">
+            <div className="bg-[#01213E] px-4 py-2 text-sm font-bold text-white">{row.time}</div>
+            <div className="grid gap-3 p-4 text-sm">
+              <div>
+                <span className="text-[11px] font-bold uppercase text-sky-700">Quadras 1, 2 e 3 · {row.leftGame}</span>
+                <p className="mt-1 font-semibold text-stone-800">{row.left}</p>
+                <p className="text-xs text-stone-500">Duplas 1, 2 e 3</p>
+              </div>
+              <div className="border-t border-stone-100 pt-3">
+                <span className="text-[11px] font-bold uppercase text-amber-700">Quadras 4, 5 e 6 · {row.rightGame}</span>
+                <p className="mt-1 font-semibold text-stone-800">{row.right}</p>
+                <p className="text-xs text-stone-500">Duplas 1, 2 e 3</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto rounded-xl border border-stone-200 md:block">
+        <table className="w-full min-w-[840px] border-collapse text-left text-xs">
+          <thead className="bg-stone-100 text-stone-700">
+            <tr>
+              <th className="px-3 py-4 font-extrabold">Horário</th>
+              {[1, 2, 3, 4, 5, 6].map((court) => (
+                <th key={court} className="px-3 py-4 font-extrabold">Q{court}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={row.time} className={rowIndex % 2 ? "bg-stone-50" : "bg-white"}>
+                <td className="whitespace-nowrap border-t border-stone-100 px-3 py-4 font-extrabold text-[#01213E]">
+                  {row.time}
+                </td>
+                {[1, 2, 3, 4, 5, 6].map((court) => (
+                  <td key={court} className="border-t border-stone-100 px-3 py-3 align-top">
+                    <span className={`mb-1 block text-[10px] font-bold ${court <= 3 ? "text-sky-700" : "text-amber-700"}`}>
+                      {court <= 3 ? row.leftGame : row.rightGame}
+                    </span>
+                    <span className="block font-semibold text-stone-700">
+                      {court <= 3 ? row.left : row.right}
+                    </span>
+                    <span className="mt-1 block text-[11px] text-stone-500">
+                      Dupla {((court - 1) % 3) + 1}
+                    </span>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Bracket() {
+  const brackets = [
+    {
+      name: "Chave Principal",
+      subtitle: "Primeiros colocados de cada grupo",
+      bg: "bg-sky-50",
+      border: "border-sky-200",
+      title: "text-sky-900",
+      matches: [
+        { number: "JG. 15 · 15:00", pairing: "1º Grupo 1 × 1º Grupo 2" },
+        { number: "JG. 16 · 15:00", pairing: "1º Grupo 3 × 1º Grupo 4" },
+        { number: "JG. 18 · 16:00", pairing: "Vencedor JG. 15 × Vencedor JG. 16", final: true },
+      ],
+      result: "Campeão e Vice-Campeão",
+    },
+    {
+      name: "Repescagem",
+      subtitle: "Segundos colocados de cada grupo",
+      bg: "bg-amber-50",
+      border: "border-amber-200",
+      title: "text-amber-900",
+      matches: [
+        { number: "JG. 13 · 14:00", pairing: "2º Grupo 1 × 2º Grupo 2" },
+        { number: "JG. 14 · 14:00", pairing: "2º Grupo 3 × 2º Grupo 4" },
+        { number: "JG. 17 · 16:00", pairing: "Vencedor JG. 13 × Vencedor JG. 14", final: true },
+      ],
+      result: "Campeão da Repescagem",
+    },
+  ];
+
+  return (
+    <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-2">
+      {brackets.map((bracket) => (
+        <div key={bracket.name} className={`rounded-xl border p-4 ${bracket.bg} ${bracket.border}`}>
+          <h3 className={`font-bold ${bracket.title}`}>{bracket.name}</h3>
+          <p className="mb-5 mt-1 text-xs text-stone-600">{bracket.subtitle}</p>
+          <div className="space-y-3">
+            {bracket.matches.map((match) => (
+              <div key={match.number} className="rounded-lg border border-white bg-white/90 p-3 shadow-sm">
+                <span className={`text-[11px] font-bold ${bracket.title}`}>{match.number}</span>
+                <p className="mt-1 text-sm font-semibold text-stone-800">{match.pairing}</p>
+                {"final" in match && match.final && (
+                  <span className="mt-1 inline-block text-[11px] font-bold uppercase text-stone-500">Final</span>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className={`mt-4 flex items-center gap-2 border-t pt-4 text-sm font-extrabold ${bracket.border} ${bracket.title}`}>
+            <Trophy className="h-4 w-4" /> {bracket.result}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function RegulamentoPage({ onBack }: RegulamentoPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeCategory, setActiveCategory] = useState("todos");
-  const [hasResults, setHasResults] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<Category>("todos");
+  const [activeSection, setActiveSection] = useState("geral");
+  const search = normalizeSearch(searchTerm);
 
-  useEffect(() => {
-    const container = document.getElementById("regulamento-page-container");
-    if (!container) return;
-
-    const termo = normalizeSearch(searchTerm);
-
-    const sections = Array.from(
-      container.querySelectorAll<HTMLElement>("[data-rule-section]")
+  const matchingScheduleRows = useMemo(() => {
+    if (!search) return scheduleRows;
+    return scheduleRows.filter((row) =>
+      normalizeSearch(Object.values(row).join(" ")).includes(search)
     );
+  }, [search]);
 
-    let visibleSections = 0;
+  const visibleSections = useMemo(() => {
+    return sections.flatMap((section) => {
+      if (activeCategory !== "todos" && section.category !== activeCategory) {
+        return [];
+      }
 
-    sections.forEach((section) => {
-      const category = section.dataset.category ?? "";
-
-      const categoryMatches =
-        activeCategory === "todos" || activeCategory === category;
-
-      const cards = Array.from(
-        section.querySelectorAll<HTMLElement>("[data-rule-card]")
+      const headingMatches = !search || normalizeSearch(section.title).includes(search);
+      const rules = (section.rules ?? []).filter(
+        (rule) => headingMatches || normalizeSearch(ruleSearchText(rule)).includes(search)
+      );
+      const specialMatches = !!section.special && (
+        headingMatches ||
+        normalizeSearch(section.searchText ?? "").includes(search) ||
+        (section.special === "schedule" && matchingScheduleRows.length > 0)
       );
 
-      let visibleCards = 0;
-
-      cards.forEach((card) => {
-        const cardText = normalizeSearch(card.innerText);
-        const searchMatches = !termo || cardText.includes(termo);
-        const shouldShow = categoryMatches && searchMatches;
-
-        card.style.display = shouldShow ? "" : "none";
-
-        if (shouldShow) {
-          visibleCards += 1;
-        }
-      });
-
-      const shouldShowSection =
-        categoryMatches && visibleCards > 0;
-
-      section.style.display = shouldShowSection ? "" : "none";
-
-      if (shouldShowSection) {
-        visibleSections += 1;
-      }
+      if (!rules.length && !specialMatches) return [];
+      return [{ ...section, rules, showSpecial: specialMatches }];
     });
+  }, [activeCategory, search, matchingScheduleRows]);
 
-    setHasResults(visibleSections > 0);
-  }, [searchTerm, activeCategory]);
-
-  const selectSection = (id: string) => {
-    const sectionCategory =
-      id === "geral"
-        ? "geral"
-        : id === "jogos"
-        ? "jogos"
-        : "regulamento";
-
-    setActiveCategory(sectionCategory);
+  const navigateTo = (section: RuleSection) => {
     setSearchTerm("");
-
+    setActiveCategory("todos");
+    setActiveSection(section.id);
     requestAnimationFrame(() => {
-      document
-        .getElementById(`section-${id}`)
-        ?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+      document.getElementById(`section-${section.id}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     });
   };
 
   return (
-    <div
-      id="regulamento-page-container"
-      className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
-    >
-      {/* CABEÇALHO */}
-      <div className="mb-8 flex flex-col justify-between border-b border-[#d4af37]/15 pb-6 sm:flex-row sm:items-center">
-        <div className="flex items-center space-x-3">
+    <div id="regulamento-page-container" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Cabeçalho */}
+      <div className="mb-8 flex flex-col justify-between gap-4 border-b border-stone-200 pb-6 sm:flex-row sm:items-center">
+        <div className="flex items-start gap-3 sm:items-center">
           <button
+            type="button"
             onClick={onBack}
-            className="group flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 shadow-sm transition hover:border-[#c93b2b]/30 hover:bg-[#c93b2b]/5 hover:text-[#c93b2b]"
+            aria-label="Voltar"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 shadow-sm transition hover:border-[#01213E]/30 hover:text-[#01213E]"
           >
-            <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
+            <ArrowLeft className="h-5 w-5" />
           </button>
-
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#c93b2b]">
-              5º Encontro das Divas - Nippon Sorocaba - 2026
+            <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#01213E]">
+              3º Torneio Beneficente de Tênis
             </span>
-
-            <h1 className="mt-1 font-serif text-3xl font-black leading-none tracking-tight text-stone-900">
-              REGULAMENTO OFICIAL
+            <h1 className="mt-1 font-serif text-2xl font-black uppercase leading-tight text-stone-900 sm:text-3xl">
+              Regulamento Oficial
             </h1>
-
             <p className="mt-1 text-xs font-bold uppercase tracking-wide text-stone-500">
-              Duplas Femininas
+              Grupo Decisium & Nippon Sorocaba
             </p>
           </div>
         </div>
-
-        <div className="mt-4 inline-flex items-center space-x-2 rounded-full border border-stone-200 bg-stone-100 px-4 py-1.5 text-xs font-semibold text-stone-600 sm:mt-0">
-          <BookOpen className="h-4 w-4 text-[#b88a1d]" />
-          <span>Vigência: Outubro de 2026</span>
+        <div className="inline-flex items-center gap-2 self-start rounded-full border border-stone-200 bg-stone-100 px-4 py-2 text-xs font-bold text-stone-700">
+          <CalendarDays className="h-4 w-4 text-[#01213E]" /> 07 de novembro de 2026 · 8h
         </div>
       </div>
 
-      {/* BUSCA E FILTROS */}
+      {/* Resumo rápido */}
+      <div className="mb-7 grid grid-cols-2 gap-3 md:grid-cols-4">
+        {[
+          { title: "12 equipes", detail: "6 jogadores por equipe", icon: Users },
+          { title: "4 grupos", detail: "3 equipes por grupo", icon: ClipboardList },
+          { title: "PRO SET", detail: "Set único até 8 games", icon: Swords },
+          { title: "6 quadras", detail: "Jogos simultâneos", icon: Clock3 },
+        ].map(({ title, detail, icon: Icon }) => (
+          <div key={title} className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
+            <Icon className="mb-2 h-5 w-5 text-[#01213E]" />
+            <p className="text-sm font-black text-stone-900">{title}</p>
+            <p className="mt-1 text-xs text-stone-500">{detail}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Busca e filtros */}
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-12">
         <div className="relative md:col-span-6">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
-            <Search className="h-4 w-4" />
-          </span>
-
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <input
-            type="text"
-            placeholder="Pesquisar regra, WO, No-AD, prazo..."
+            type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            className="w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-4 text-sm font-medium text-stone-800 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-[#c93b2b] focus:ring-1 focus:ring-[#c93b2b]"
+            placeholder="Pesquisar: PRO SET, No-Ad, horários, equipes..."
+            className="w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-10 text-sm text-stone-800 shadow-sm outline-none transition placeholder:text-stone-400 focus:border-[#01213E] focus:ring-1 focus:ring-[#01213E]"
           />
+          {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              aria-label="Limpar busca"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-800"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
-
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 md:col-span-6 md:pb-0">
-          <span className="mr-1 hidden shrink-0 text-xs font-bold uppercase tracking-wider text-stone-400 lg:inline">
-            Filtros:
-          </span>
-
-          <button
-            onClick={() => setActiveCategory("todos")}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
-              activeCategory === "todos"
-                ? "bg-stone-900 text-white shadow-sm"
-                : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-            }`}
-          >
-            Todos
-          </button>
-
-          <button
-            onClick={() => setActiveCategory("geral")}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
-              activeCategory === "geral"
-                ? "bg-stone-900 text-white shadow-sm"
-                : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-            }`}
-          >
-            Geral
-          </button>
-
-          <button
-            onClick={() => setActiveCategory("jogos")}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
-              activeCategory === "jogos"
-                ? "bg-stone-900 text-white shadow-sm"
-                : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-            }`}
-          >
-            Jogos
-          </button>
-
-          <button
-            onClick={() => setActiveCategory("regulamento")}
-            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
-              activeCategory === "regulamento"
-                ? "bg-stone-900 text-white shadow-sm"
-                : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
-            }`}
-          >
-            Regulamento
-          </button>
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:col-span-6 md:pb-0">
+          {filters.map((filter) => (
+            <button
+              type="button"
+              key={filter.value}
+              onClick={() => setActiveCategory(filter.value)}
+              className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-bold transition ${
+                activeCategory === filter.value
+                  ? "bg-[#01213E] text-white shadow-sm"
+                  : "border border-stone-200 bg-white text-stone-600 hover:bg-stone-50"
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-        {/* ÍNDICE */}
-        <aside className="hidden space-y-1 lg:block">
-          <span className="mb-2 block px-3 text-[10px] font-bold uppercase tracking-widest text-stone-400">
-            Índice de Seções
-          </span>
-
-          <button
-            onClick={() => selectSection("geral")}
-            className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition ${
-              activeCategory === "geral"
-                ? "border border-[#d4af37]/10 bg-[#d4af37]/15 text-[#8a6512]"
-                : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-            }`}
-          >
-            <div className="flex items-center space-x-2.5">
-              <Landmark className="h-4 w-4 text-stone-400" />
-              <span>Informações Gerais</span>
-            </div>
-
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </button>
-
-          <button
-            onClick={() => selectSection("jogos")}
-            className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition ${
-              activeCategory === "jogos"
-                ? "border border-[#d4af37]/10 bg-[#d4af37]/15 text-[#8a6512]"
-                : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-            }`}
-          >
-            <div className="flex items-center space-x-2.5">
-              <Clock className="h-4 w-4 text-stone-400" />
-              <span>Formato dos Jogos</span>
-            </div>
-
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </button>
-
-          <button
-            onClick={() => selectSection("classificacao")}
-            className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider transition ${
-              activeCategory === "regulamento"
-                ? "border border-[#d4af37]/10 bg-[#d4af37]/15 text-[#8a6512]"
-                : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-            }`}
-          >
-            <div className="flex items-center space-x-2.5">
-              <Trophy className="h-4 w-4 text-stone-400" />
-              <span>Classificação</span>
-            </div>
-
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </button>
-
-          <button
-            onClick={() => selectSection("premiacao")}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-stone-600 transition hover:bg-stone-100 hover:text-stone-900"
-          >
-            <div className="flex items-center space-x-2.5">
-              <DollarSign className="h-4 w-4 text-stone-400" />
-              <span>Premiação e Taxas</span>
-            </div>
-
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </button>
-
-          <button
-            onClick={() => selectSection("inscricao")}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-stone-600 transition hover:bg-stone-100 hover:text-stone-900"
-          >
-            <div className="flex items-center space-x-2.5">
-              <ClipboardList className="h-4 w-4 text-stone-400" />
-              <span>Inscrição</span>
-            </div>
-
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </button>
-
-          <button
-            onClick={() => selectSection("comissao")}
-            className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs font-bold uppercase tracking-wider text-stone-600 transition hover:bg-stone-100 hover:text-stone-900"
-          >
-            <div className="flex items-center space-x-2.5">
-              <Users className="h-4 w-4 text-stone-400" />
-              <span>Comissão</span>
-            </div>
-
-            <ChevronRight className="h-3 w-3 opacity-60" />
-          </button>
-
-          <div className="mt-8 space-y-2 rounded-xl border border-orange-100 bg-orange-50/50 p-4">
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-orange-800">
-              Suporte ao Atleta
+        {/* Índice lateral */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-6 space-y-1">
+            <span className="mb-3 block px-3 text-[10px] font-bold uppercase tracking-widest text-stone-400">
+              Índice de Seções
             </span>
-
-            <p className="text-[11px] font-semibold leading-relaxed text-orange-700/90">
-              Dúvidas, interpretação de regulamento e penalidades serão
-              resolvidas pela Comissão Técnica e Disciplinar.
-            </p>
+            {sections.map((section) => {
+              const Icon = section.icon;
+              return (
+                <button
+                  key={section.id}
+                  type="button"
+                  onClick={() => navigateTo(section)}
+                  className={`flex w-full items-center justify-between gap-2 rounded-xl px-3 py-3 text-left text-xs font-bold transition ${
+                    activeSection === section.id
+                      ? "bg-[#01213E]/10 text-[#01213E]"
+                      : "text-stone-600 hover:bg-stone-100"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Icon className="h-4 w-4 shrink-0" /> {section.title}
+                  </span>
+                  <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
+                </button>
+              );
+            })}
+            <div className="mt-6 rounded-xl border border-amber-100 bg-amber-50 p-4">
+              <p className="text-xs font-bold text-amber-900">Comissão Técnica e Disciplinar</p>
+              <p className="mt-1 text-xs leading-relaxed text-amber-800">
+                Dúvidas, penalidades e casos não previstos são tratados pelas comissões responsáveis.
+              </p>
+            </div>
           </div>
         </aside>
 
-        {/* CONTEÚDO */}
-        <main className="space-y-10 lg:col-span-3">
-          {/* INFORMAÇÕES GERAIS */}
-          <motion.section
-            id="section-geral"
-            data-rule-section
-            data-category="geral"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <Landmark className="h-4 w-4" />
-              </span>
+        {/* Conteúdo do regulamento */}
+        <main className="space-y-8 lg:col-span-3">
+          {visibleSections.map((section) => {
+            const Icon = section.icon;
+            const rowsToShow = !search || normalizeSearch(section.title).includes(search) || normalizeSearch(section.searchText ?? "").includes(search)
+              ? scheduleRows
+              : matchingScheduleRows;
 
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Informações Gerais
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Evento
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  5º Encontro das Divas - Nippon Sorocaba - 2026
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Local
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Nippon Sorocaba (União Cultural Esportiva Nipo Brasileira de
-                  Sorocaba) — Sede Campestre II, Antiga Estrada de Araçoiaba da
-                  Serra, 211 — Araçoiaba da Serra.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Formato do Torneio
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Duplas Femininas.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Data
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  03 de Outubro de 2026 (sábado): início às 8h encerramento às
-                  18h00.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* FORMATO DOS JOGOS */}
-          <motion.section
-            id="section-jogos"
-            data-rule-section
-            data-category="jogos"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <Clock className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Formato dos Jogos
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Formato Principal (Melhor de 3 sets)
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Primeira Rodada, Rodadas de Grupo, Semifinais e Finais:
-                  Serão disputados em melhor de três (3) sets, no sistema
-                  No-AD.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  1º e 2º sets
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Nos 1º e 2º sets serão até quatro (4) games, e não ocorrerá
-                  tie-break. Havendo empate em 3 x 3, vence o set quem fizer 4
-                  games primeiro.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Empate em sets
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Ocorrendo empate em sets em 1 a 1, o confronto será decidido
-                  por meio de tie-break. A dupla vencedora será aquela que
-                  atingir sete pontos, com diferença de dois pontos.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Chave Repescagem
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Rodadas da Chave Repescagem, perdedores do 1º jogo e Finais
-                  da Repescagens: Disputa em set único até seis (6) games, no
-                  sistema No-AD. Havendo empate em 5 x 5 na Repescagem, o
-                  confronto será decidido por tie-break. A dupla vencedora
-                  será aquela que atingir sete pontos, com diferença de dois
-                  pontos.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  No-AD
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Todos os jogos serão disputados com a regra No-AD: o game
-                  estando em 40 a 40 será disputado apenas mais um ponto, com a
-                  dupla recebedora tendo direito de escolha do lado do saque.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  WO
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Caso ocorra ausência de um jogador no momento do início do
-                  jogo, após a devida chamada pela mesa organizadora, será
-                  proclamada a vitória do oponente por WO.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Aquecimento
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  As duplas terão 5 minutos de aquecimento a partir do anúncio
-                  da chamada do jogo.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Antecedência
-                </span>
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  As atletas devem chegar pelo menos com 1 hora de antecedência
-                  aos jogos programados.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* CRITÉRIOS DE CLASSIFICAÇÃO */}
-          <motion.section
-            id="section-classificacao"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <Trophy className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Critérios de Classificação
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Categorias A1, B1 e C — Chaves com 8 ou 9 Duplas
-                </span>
-
-                <p className="mt-2 text-sm font-medium leading-relaxed text-stone-600">
-                  Sistema de chaveamento com Repescagem e Chave Principal.
-                  Vencedores avançam pela Chave Principal e perdedores seguem
-                  para a Repescagem.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Categorias A2 e B20 — Chaves com 6 Duplas
-                </span>
-
-                <p className="mt-2 text-sm font-bold text-stone-700">
-                  Fase de Grupos
-                </p>
-
-                <p className="mt-2 text-sm font-medium leading-relaxed text-stone-600">
-                  Critérios de classificação na fase de grupos, nesta ordem:
-                </p>
-
-                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm font-medium leading-relaxed text-stone-600">
-                  <li>Quantidade de Vitórias;</li>
-                  <li>Confronto direto;</li>
-                  <li>Saldo de Sets;</li>
-                  <li>Saldo de Games;</li>
-                  <li>Saldo de Pontos no Tie-Break, se aplicável;</li>
-                  <li>Sorteio.</li>
-                </ul>
-
-                <p className="mt-5 text-sm font-bold text-stone-700">
-                  Finais
-                </p>
-
-                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm font-medium leading-relaxed text-stone-600">
-                  <li>
-                    As primeiras colocadas de cada Grupo se classificam para a
-                    Final Principal;
-                  </li>
-                  <li>
-                    As segundas colocadas de cada Grupo se classificam para a
-                    Final Repescagem.
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* PREMIAÇÃO E TAXAS */}
-          <motion.section
-            id="section-premiacao"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <DollarSign className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Premiação e Taxas
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Troféus
-                </span>
-
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Troféus para as duplas Campeãs, Vice-Campeãs e Campeãs da
-                  Repescagem em todas as Categorias.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Taxa de inscrição
-                </span>
-
-                <ul className="mt-3 list-disc space-y-2 pl-5 text-sm font-medium leading-relaxed text-stone-600">
-                  <li>
-                    R$ 120,00 por jogadora não associada do Nippon Sorocaba
-                  </li>
-                  <li>
-                    R$ 100,00 por jogadora associada do Nippon Sorocaba
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* INSCRIÇÃO E COMISSÃO */}
-          <motion.section
-            id="section-inscricao"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <ClipboardList className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Inscrição e Comissão
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Participação por categoria
-                </span>
-
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  Cada participante poderá participar somente de 1 categoria de
-                  Duplas.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <span className="block text-xs font-bold uppercase tracking-wide text-[#8a6512]">
-                  Alterações pela Comissão
-                </span>
-
-                <p className="mt-1 text-sm font-medium leading-relaxed text-stone-600">
-                  A Comissão se reserva ao direito de alterar o sistema de
-                  chaveamento, sistema dos jogos e horários em caso de
-                  necessidade de ajustes no número/categoria das duplas
-                  participantes ou de atrasos por qualquer motivo.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* DÚVIDAS E PENALIDADES */}
-          <motion.section
-            id="section-duvidas"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <ShieldCheck className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Dúvidas e Penalidades
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <p className="text-sm font-medium leading-relaxed text-stone-600">
-                  Qualquer dúvida sobre a aplicação e interpretação do
-                  regulamento, inclusive sobre penalidades, será resolvida pela
-                  Comissão Técnica e Disciplinar, cuja decisão será soberana e
-                  definitiva.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* CASOS OMISSOS */}
-          <motion.section
-            id="section-omissos"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <BookOpen className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Casos Omissos
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <p className="text-sm font-medium leading-relaxed text-stone-600">
-                  Os casos omissos no presente regulamento serão resolvidos
-                  pela Comissão Organizadora.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* COMPROVAÇÃO DE IDENTIDADE */}
-          <motion.section
-            id="section-identidade"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <ShieldCheck className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Comprovação de Identidade
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <p className="text-sm font-medium leading-relaxed text-stone-600">
-                  A qualquer momento, a comissão pode pedir RG ou outro
-                  documento que prove a identidade conforme a inscrição
-                  prévia.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* TERMO DE RESPONSABILIDADE */}
-          <motion.section
-            id="section-responsabilidade"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <ShieldCheck className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Termo de Responsabilidade
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <p className="text-sm font-medium leading-relaxed text-stone-600">
-                  As atletas participantes, ao se inscreverem no Torneio,
-                  <strong className="font-black text-stone-800">
-                    {" "}
-                    DECLARAM
-                  </strong>{" "}
-                  que estão cientes de todas as cláusulas e condições,
-                  estipuladas no Regulamento do Torneio, e que exoneram o
-                  Nippon Sorocaba, seus organizadores, colaboradores,
-                  patrocinadores e apoiadores de{" "}
-                  <strong className="font-black text-stone-800">
-                    TODA E QUALQUER RESPONSABILIDADE
-                  </strong>{" "}
-                  tais como problemas de danos materiais, morais, físicos ou de
-                  saúde, sejam elas de que natureza forem, entre qualquer outro
-                  fato decorrentes de sua participação no Torneio.
-                </p>
-              </div>
-
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <p className="text-sm font-medium leading-relaxed text-stone-600">
-                  Autorizam o uso de sua imagem e voz, para fins de divulgação
-                  do evento, por fotos, vídeos e entrevistas e qualquer meio de
-                  comunicação, entre outras modalidades, sem geração de ônus
-                  para o Nippon Sorocaba, organizadores, mídia, patrocinadores
-                  e apoiadores.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* COMISSÃO ORGANIZADORA */}
-          <motion.section
-            id="section-comissao"
-            data-rule-section
-            data-category="regulamento"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm"
-          >
-            <div className="flex items-center space-x-3 border-b border-stone-100 bg-stone-50 px-6 py-4">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#c93b2b]/10 text-[#c93b2b]">
-                <Users className="h-4 w-4" />
-              </span>
-
-              <h2 className="font-serif text-lg font-black uppercase tracking-wide text-stone-900">
-                Comissão Organizadora
-              </h2>
-            </div>
-
-            <div className="divide-y divide-stone-100">
-              <div data-rule-card className="p-6 transition hover:bg-stone-50/30">
-                <ul className="space-y-2 text-sm font-medium leading-relaxed text-stone-600">
-                  <li>Milton Toshihiko Tsubaki</li>
-                  <li>Sergio Shigueo Takeda</li>
-                  <li>Raquel Takeda Sakanaka</li>
-                  <li>Tomoko Kanaschiro</li>
-                  <li>Israel Valle</li>
-                </ul>
-
-                <p className="mt-5 border-t border-stone-100 pt-5 text-sm font-bold leading-relaxed text-stone-700">
-                  Diretoria do Departamento de Tênis - Nippon Sorocaba -
-                  Gestão 2026.
-                </p>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* SEM RESULTADOS */}
-          {!hasResults && (
-            <div className="rounded-2xl border border-dashed border-stone-300 bg-white py-16 text-center">
-              <span className="block font-serif text-base italic text-stone-400">
-                Nenhuma regra encontrada
-              </span>
-
-              <p className="mt-1 text-xs text-stone-500">
-                Experimente buscar por outros termos como “No-AD”, “WO”,
-                “classificação”, “taxa” ou “repescagem”.
-              </p>
-
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setActiveCategory("todos");
-                }}
-                className="mt-4 text-xs font-bold uppercase text-[#c93b2b] hover:underline"
+            return (
+              <motion.section
+                key={section.id}
+                id={`section-${section.id}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22 }}
+                className="scroll-mt-24 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm"
               >
-                Limpar filtros e busca
+                <div className="flex items-center gap-3 border-b border-stone-100 bg-stone-50 px-5 py-4 sm:px-6">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#01213E]/10 text-[#01213E]">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <h2 className="font-serif text-base font-black uppercase tracking-wide text-stone-900 sm:text-lg">
+                    {section.title}
+                  </h2>
+                </div>
+
+                {!!section.rules?.length && (
+                  <div className="divide-y divide-stone-100">
+                    {section.rules.map((rule) => (
+                      <article key={rule.title} className="p-5 transition hover:bg-stone-50/50 sm:p-6">
+                        <h3 className="text-xs font-extrabold uppercase tracking-wide text-[#01213E]">
+                          {rule.title}
+                        </h3>
+                        {rule.text && (
+                          <p className="mt-2 text-sm font-medium leading-relaxed text-stone-600">
+                            {rule.text}
+                          </p>
+                        )}
+                        {!!rule.points?.length && (
+                          <ul className="mt-3 space-y-2 pl-5 text-sm font-medium leading-relaxed text-stone-600">
+                            {rule.points.map((point) => (
+                              <li key={point} className="list-disc">{point}</li>
+                            ))}
+                          </ul>
+                        )}
+                        {rule.note && (
+                          <p className="mt-3 rounded-lg border border-amber-100 bg-amber-50 p-3 text-xs font-semibold leading-relaxed text-amber-900">
+                            {rule.note}
+                          </p>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                )}
+                {section.showSpecial && section.special === "bracket" && <Bracket />}
+                {section.showSpecial && section.special === "schedule" && <Schedule rows={rowsToShow} />}
+                {section.showSpecial && section.special === "map" && (
+                  <div className="p-5 sm:p-6">
+                    <p className="mb-4 text-sm font-medium leading-relaxed text-stone-600">
+                      Nippon Sorocaba — UCENS, Sede Campestre II. Antiga Estrada de Araçoiaba da Serra, 211 — Araçoiaba da Serra.
+                    </p>
+                    <img
+                      src={mapa}
+                      alt="Mapa de acesso ao Nippon Sorocaba, Sede Campestre II, extraído do regulamento oficial"
+                      loading="lazy"
+                      className="w-full rounded-xl border border-stone-200 bg-white object-contain"
+                    />
+                    <a
+                      href="https://www.google.com/maps/search/?api=1&query=Antiga+Estrada+de+Aracoiaba+da+Serra+211+Aracoiaba+da+Serra"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#01213E] underline underline-offset-4 hover:no-underline"
+                    >
+                      <MapPin className="h-4 w-4" /> Buscar endereço no Google Maps
+                    </a>
+                  </div>
+                )}
+              </motion.section>
+            );
+          })}
+
+          {visibleSections.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center">
+              <BookOpen className="mx-auto h-8 w-8 text-stone-400" />
+              <p className="mt-3 font-serif text-lg font-bold text-stone-700">Nenhuma regra encontrada</p>
+              <p className="mt-1 text-sm text-stone-500">Tente pesquisar por “PRO SET”, “No-Ad”, “equipes” ou “repescagem”.</p>
+              <button
+                type="button"
+                onClick={() => { setSearchTerm(""); setActiveCategory("todos"); }}
+                className="mt-5 text-sm font-bold text-[#01213E] underline"
+              >
+                Limpar busca e filtros
               </button>
             </div>
           )}
+          <p className="text-center text-xs font-semibold text-stone-500">
+            Grupo Decisium / Nippon Sorocaba — Comissão Organizadora
+          </p>
         </main>
       </div>
 
-      {/* VOLTAR */}
-      <div className="mt-12 flex justify-center border-t border-[#d4af37]/15 pt-8">
+      <div className="mt-12 flex justify-center border-t border-stone-200 pt-8">
         <button
+          type="button"
           onClick={onBack}
-          className="flex items-center space-x-2 rounded-full bg-stone-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-stone-800"
+          className="flex items-center gap-2 rounded-full bg-[#01213E] px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-md transition hover:opacity-90"
         >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Voltar para a Página Principal</span>
+          <ArrowLeft className="h-4 w-4" /> Voltar para a página principal
         </button>
       </div>
     </div>
