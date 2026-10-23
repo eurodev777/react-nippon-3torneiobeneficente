@@ -71,6 +71,51 @@ export default function HeroSection(_props: HeroSectionProps) {
             </div>
           </div>
 
+          <div className="mt-16 text-center max-w-4xl mx-auto space-y-8 text-white">
+            {/* Quote block */}
+            <div className="relative py-4">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gold/30" />
+              <h3 className="text-lg md:text-2xl">
+                3º Torneio Beneficente de Tênis do Grupo Decisium
+              </h3>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gold/30" />
+            </div>
+
+            {/* Beautiful welcome prose */}
+            <div className="space-y-6 text-sm leading-relaxed font-medium text-justify md:text-center md:px-6">
+              <p>
+                <strong className="">
+                  Um dia para jogar, encontrar amigos e fazer o bem.
+                </strong>
+                <br />O Torneio Beneficente de Tênis do Grupo Decisium chega à
+                sua terceira edição, com o apoio do Nippon Sorocaba, reunindo
+                pessoas que compartilham a paixão pelo esporte e a vontade de
+                ajudar. É a união de atletas, patrocinadores e apoiadores que dá
+                sentido a esse encontro.
+              </p>
+
+              <p>
+                Mais do que jogar tênis, queremos fortalecer uma corrente de
+                solidariedade. Um evento feito por pessoas, para pessoas, em que
+                a convivência e a contribuição de cada um ajudam centenas de
+                pessoas. Neste ano, graças a vocês, essa união apoiará a
+                Instituição Batuíra e a Vila dos Velhinhos.
+              </p>
+              <p className="text-center text-white text-base font-bold block">
+                Juntas por essa causa
+              </p>
+              <p>
+                Nesta edição, o rosa ganha um significado ainda mais especial. O
+                5º Encontro das Divas abraça também a conscientização do Outubro
+                Rosa, unindo nossas atletas em torno de uma mensagem de cuidado,
+                prevenção e valorização da saúde da mulher. Porque quando
+                entramos em quadra juntas, podemos fazer muito mais do que
+                disputar pontos. Esporte. Amizade. Família. Juntas por essa
+                causa.
+              </p>
+            </div>
+          </div>
+
           {/* Foto normal, RETANGULAR, sem moldura ou recorte; legenda EMBAIXO */}
           <figure className="mx-auto flex w-full flex-col items-center px-3">
             <img

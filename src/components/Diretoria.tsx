@@ -104,8 +104,8 @@ export default function Diretoria() {
           })}
         </div>
 
-        <div className="mt-16 text-center max-w-4xl mx-auto space-y-8">
-          {/* Quote block */}
+        {/* <div className="mt-16 text-center max-w-4xl mx-auto space-y-8">
+
           <div className="relative py-4">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gold/30" />
             <h3 className="text-lg md:text-2xl">
@@ -114,7 +114,6 @@ export default function Diretoria() {
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gold/30" />
           </div>
 
-          {/* Beautiful welcome prose */}
           <div className="space-y-6 text-sm leading-relaxed font-medium text-justify md:text-center md:px-6">
             <p>
               <strong className="">
@@ -146,7 +145,7 @@ export default function Diretoria() {
               Esporte. Amizade. Família. Juntas por essa causa.
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
