@@ -796,72 +796,56 @@ function evitarSobreposicao(centros: number[], minGap: number): number[] {
   return saida;
 }
 
-function centrosPrimeiraColuna(
-  centrosPrincipal: number[],
-
+/**
+ * Distribui as partidas de uma fase pela ALTURA INTEIRA da fase anterior.
+ *
+ * Na V35 o algoritmo pegava apenas os 2 primeiros jogos para cada semifinal.
+ * Exemplo com 6 confrontos de grupos:
+ *    ANTES: semifinal 1 = media(jogos 1 e 2)
+ *           semifinal 2 = media(jogos 3 e 4)  <-- ambas ficam na parte alta
+ *    AGORA: semifinal 1 = media(jogos 1, 2 e 3)
+ *           semifinal 2 = media(jogos 4, 5 e 6)
+ * Assim o centro das semifinais coincide com o centro da fase de grupos.
+ */
+function centrosAgrupados(
+  centrosOriginais: number[],
   qtdDestino: number,
 ): number[] {
-  if (!qtdDestino) return [];
-
-  if (!centrosPrincipal.length) {
-    return distribuir(CARD_H / 2, (CARD_H + 40) * qtdDestino, qtdDestino);
+  if (qtdDestino <= 0) return [];
+  const origem = [...centrosOriginais]
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+  if (!origem.length) {
+    return distribuir(
+      ALTURA_UNIDADE / 2,
+      (ALTURA_UNIDADE + 34) * qtdDestino,
+      qtdDestino,
+    );
   }
-
-  if (qtdDestino === 1) {
-    return [media(centrosPrincipal)];
+  if (qtdDestino === 1) return [media(origem)];
+  if (origem.length >= qtdDestino) {
+    return Array.from({ length: qtdDestino }, (_, indice) => {
+      const inicio = Math.floor((indice * origem.length) / qtdDestino);
+      const fim = Math.floor(((indice + 1) * origem.length) / qtdDestino);
+      return media(origem.slice(inicio, fim));
+    });
   }
+  // Raro: mais partidas na próxima fase que na fase anterior.
+  return distribuir(origem[0], origem[origem.length - 1], qtdDestino);
+}
 
-  if (centrosPrincipal.length >= qtdDestino * 2) {
-    const saida: number[] = [];
-
-    for (let i = 0; i < qtdDestino; i++) {
-      saida.push(media(centrosPrincipal.slice(i * 2, i * 2 + 2)));
-    }
-
-    return saida;
-  }
-
-  return distribuir(
-    Math.min(...centrosPrincipal),
-
-    Math.max(...centrosPrincipal),
-
-    qtdDestino,
-  );
+function centrosPrimeiraColuna(
+  centrosPrincipal: number[],
+  qtdDestino: number,
+): number[] {
+  return centrosAgrupados(centrosPrincipal, qtdDestino);
 }
 
 function centrosColunaSeguinte(
   centrosAnteriores: number[],
-
   qtdDestino: number,
 ): number[] {
-  if (!qtdDestino) return [];
-
-  if (!centrosAnteriores.length) {
-    return distribuir(CARD_H / 2, (CARD_H + 40) * qtdDestino, qtdDestino);
-  }
-
-  if (qtdDestino === 1) {
-    return [media(centrosAnteriores)];
-  }
-
-  if (centrosAnteriores.length >= qtdDestino * 2) {
-    const saida: number[] = [];
-
-    for (let i = 0; i < qtdDestino; i++) {
-      saida.push(media(centrosAnteriores.slice(i * 2, i * 2 + 2)));
-    }
-
-    return saida;
-  }
-
-  return distribuir(
-    Math.min(...centrosAnteriores),
-
-    Math.max(...centrosAnteriores),
-
-    qtdDestino,
-  );
+  return centrosAgrupados(centrosAnteriores, qtdDestino);
 }
 
 /**
@@ -1078,13 +1062,17 @@ function calcularLateral(
   };
   for (let coluna = 1; coluna <= max; coluna++) {
     const lista = unidades.filter((u) => colunaDoJogo(u.jogo) === coluna);
+    // Uma única final fica no mesmo eixo horizontal do pódio (campeão/vice),
+    // que já utiliza a média dos centros da fase principal.
     const base =
-      coluna === 1
-        ? centrosPrimeiraColuna(principalCentros, lista.length)
-        : centrosColunaSeguinte(
-            centrosPorColuna.get(coluna - 1) || [],
-            lista.length,
-          );
+      coluna > 1 && lista.length === 1 && principalCentros.length
+        ? [media(principalCentros)]
+        : coluna === 1
+          ? centrosPrimeiraColuna(principalCentros, lista.length)
+          : centrosColunaSeguinte(
+              centrosPorColuna.get(coluna - 1) || [],
+              lista.length,
+            );
     const centros = evitarSobreposicao(base, ALTURA_UNIDADE + 28);
     centrosPorColuna.set(coluna, centros);
     const x = leftStart + deslocamentoColuna(coluna);
